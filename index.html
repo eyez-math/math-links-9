@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>מתמטיקה ט' - גוש ב'</title>
+<style>
+@font-face{font-family:'Heebo';src:url('./fonts/Heebo-Regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap;}
+@font-face{font-family:'Heebo';src:url('./fonts/Heebo-Medium.ttf') format('truetype');font-weight:500;font-style:normal;font-display:swap;}
+@font-face{font-family:'Heebo';src:url('./fonts/Heebo-SemiBold.ttf') format('truetype');font-weight:600;font-style:normal;font-display:swap;}
+@font-face{font-family:'Heebo';src:url('./fonts/Heebo-Bold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:swap;}
+@font-face{font-family:'Heebo';src:url('./fonts/Heebo-ExtraBold.ttf') format('truetype');font-weight:800;font-style:normal;font-display:swap;}
+
+:root{
+  --bg: #0F2A3D;
+  --grid-line: rgba(255,255,255,0.045);
+  --surface: #163B54;
+  --surface-2: #1D4C6B;
+  --paper: #F1E6C9;
+  --paper-ink: #2B2013;
+  --ink: #EAF3F1;
+  --muted: #93B2C2;
+  --accent: #E8B84B;
+  --accent-ink: #1B2A1F;
+  --line: rgba(255,255,255,0.09);
+  --radius: 14px;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  background-color:var(--bg);
+  background-image:
+    repeating-linear-gradient(0deg, var(--grid-line) 0px, var(--grid-line) 1px, transparent 1px, transparent 34px),
+    repeating-linear-gradient(90deg, var(--grid-line) 0px, var(--grid-line) 1px, transparent 1px, transparent 34px);
+  color:var(--ink);
+  font-family:'Heebo', Arial, sans-serif;
+  min-height:100vh;
+  padding: 28px 16px 60px;
+}
+
+.wrap{ max-width:720px; margin:0 auto; }
+
+header{ text-align:center; margin-bottom:28px; }
+header h1{
+  font-family:'Heebo', Arial, sans-serif;
+  font-weight:700;
+  font-size:clamp(26px, 5.5vw, 38px);
+  margin:0 0 6px;
+  letter-spacing:0.3px;
+}
+header p{
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+  font-weight:500;
+}
+header .rule{
+  width:64px; height:3px; background:var(--accent);
+  margin:14px auto 0; border-radius:3px;
+}
+
+/* General / pinned card */
+.pinned{
+  background:var(--paper);
+  color:var(--paper-ink);
+  border-radius:var(--radius);
+  padding:16px 18px;
+  margin-bottom:22px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+.pinned .pin-row{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.pinned .pin-label{
+  font-size:11px; font-weight:700; color:#8A6A2A;
+  letter-spacing:0.4px;
+}
+.pinned .link-row{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:10px; flex-wrap:wrap;
+  padding:4px 0;
+}
+.pinned .link-name{ font-weight:600; font-size:16px; }
+
+/* Topic cards */
+details.topic{
+  background:var(--surface);
+  border-radius:var(--radius);
+  margin-bottom:14px;
+  overflow:hidden;
+  border:1px solid var(--line);
+}
+details.topic summary{
+  list-style:none;
+  cursor:pointer;
+  padding:14px 16px;
+  display:flex; align-items:center; gap:12px;
+  user-select:none;
+}
+details.topic summary::-webkit-details-marker{ display:none; }
+.badge{
+  flex:0 0 auto;
+  width:34px; height:34px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Heebo', Arial, sans-serif; font-weight:700; font-size:16px;
+}
+.topic-name{
+  font-family:'Heebo', Arial, sans-serif;
+  font-size:19px; font-weight:500;
+  flex:1 1 auto;
+}
+.chevron{
+  flex:0 0 auto; color:var(--muted);
+  transition: transform 0.18s ease;
+  font-size:13px;
+}
+details.topic[open] .chevron{ transform:rotate(180deg); }
+
+.topic-body{ padding: 0 16px 16px; }
+.links-list{ display:flex; flex-direction:column; gap:8px; }
+.empty-state{
+  color:var(--muted); font-size:14px; padding:8px 4px 4px;
+}
+
+.link-item{
+  background:var(--surface-2);
+  border-radius:10px;
+  padding:10px 12px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.link-item .link-name{
+  flex:1 1 160px; font-weight:500; font-size:15px;
+  overflow-wrap:anywhere;
+}
+
+.btn{
+  border:none; cursor:pointer; font-family:inherit;
+  border-radius:8px; font-weight:600; font-size:13px;
+  padding:7px 14px; display:inline-flex; align-items:center; gap:6px;
+  transition: filter .12s ease, transform .12s ease;
+  text-decoration:none;
+}
+.btn:active{ transform: translateY(1px); }
+.btn-open{ background:var(--accent); color:var(--accent-ink); }
+.btn-open:hover{ filter:brightness(1.06); }
+.btn-open-paper{ background:#8A6A2A; color:#fff; }
+.btn-open-paper:hover{ filter:brightness(1.1); }
+
+footer{
+  text-align:center; margin-top:34px; color:var(--muted); font-size:12.5px;
+  line-height:1.7;
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =========================================================================
+   הוספת קישורים - זה כל מה שצריך לערוך.
+
+   בתוך הנושא הרצוי מדביקים רק את כתובת הקישור בתוך מרכאות:
+       "https://eyez-math.github.io/example/",
+
+   אין צורך לכתוב שם, כותרת או מבנה נוסף.
+   האתר ינסה לקרוא אוטומטית את כותרת העמוד מתוך הקישור.
+   ========================================================================= */
+
+const APP_DATA = {
+  siteTitle: "מתמטיקה ט' - גוש ב'",
+  subtitle: "מרכז קישורים ללימוד",
+
+  general: [
+    "https://eyez-math.github.io/teacher-dashboard/"
+  ],
+
+  topics: [
+    {
+      name: "טכניקה אלגברית",
+      links: [
+        "https://eyez-math.github.io/Mathematical-powers---the-beginning/",
+        "https://eyez-math.github.io/Mathematical-Powers---Introduction/",
+        "https://eyez-math.github.io/Mathematical-powers---addition-or-multiplication/"
+      ]
+    },
+    { name: "פונקציה ריבועית", links: [] },
+    { name: "קדם אנליזה", links: [] },
+    { name: "פונקציה קווית", links: [] },
+    { name: "אנליטית", links: [] },
+    { name: "גאומטריה", links: [] }
+  ]
+};
+
+const PALETTE = ['#EF6461','#5DA9E9','#9B72CF','#6FBF73','#4FB6A8','#D9A441'];
+
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function hashColor(str){
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+  return PALETTE[Math.abs(h) % PALETTE.length];
+}
+
+function pinIconSvg(){
+  return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="12" cy="9" r="5" stroke="#8A6A2A" stroke-width="1.6"/>
+    <line x1="12" y1="14" x2="12" y2="21" stroke="#8A6A2A" stroke-width="1.6" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function fallbackTitle(url){
+  try{
+    const u = new URL(url);
+    const parts = u.pathname.split('/').filter(Boolean);
+    const slug = parts[parts.length - 1] || u.hostname.replace(/^www\./,'');
+    return decodeURIComponent(slug)
+      .replace(/[-_]+/g,' ')
+      .replace(/\s+/g,' ')
+      .trim() || u.hostname;
+  }catch(e){
+    return 'קישור';
+  }
+}
+
+function normalizeTitle(title, url){
+  const clean = String(title || '').replace(/\s+/g,' ').trim();
+  if (!clean) return fallbackTitle(url);
+  return clean;
+}
+
+async function getLinkTitle(url){
+  const cacheKey = 'math-links-title:' + url;
+  const cached = localStorage.getItem(cacheKey);
+  if (cached) return cached;
+
+  try{
+    const response = await fetch(url, { cache: 'no-store' });
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const title = normalizeTitle(doc.querySelector('title')?.textContent, url);
+    localStorage.setItem(cacheKey, title);
+    return title;
+  }catch(e){
+    return fallbackTitle(url);
+  }
+}
+
+function linkRow(url, paper=false){
+  const safeUrl = esc(url);
+  const cls = paper ? 'link-row' : 'link-item';
+  const btnCls = paper ? 'btn btn-open-paper' : 'btn btn-open';
+  return `
+    <div class="${cls}" data-url="${safeUrl}">
+      <span class="link-name" data-auto-title>טוען כותרת…</span>
+      <a class="${btnCls}" href="${safeUrl}" target="_blank" rel="noopener">פתח</a>
+    </div>`;
+}
+
+function renderGeneral(){
+  const rows = APP_DATA.general.map(url => linkRow(url, true)).join('');
+
+  return `
+    <div class="pinned">
+      <div class="pin-row">
+        ${pinIconSvg()}
+        <div class="pin-label">קישור כללי</div>
+      </div>
+      ${rows}
+    </div>
+  `;
+}
+
+function renderTopic(topic, ti){
+  const color = hashColor(topic.name);
+  const letter = topic.name.trim().charAt(0) || '?';
+
+  const linksHtml = topic.links.length
+    ? topic.links.map(url => linkRow(url)).join('')
+    : `<div class="empty-state">עדיין אין קישורים בנושא הזה.</div>`;
+
+  return `
+    <details class="topic" data-topic-index="${ti}" ${ti === 0 ? 'open' : ''}>
+      <summary>
+        <div class="badge" style="background:${color}33; color:${color}; border:1px solid ${color}66;">${esc(letter)}</div>
+        <span class="topic-name">${esc(topic.name)}</span>
+        <span class="chevron">▾</span>
+      </summary>
+      <div class="topic-body">
+        <div class="links-list">${linksHtml}</div>
+      </div>
+    </details>
+  `;
+}
+
+async function hydrateTitles(){
+  const rows = [...document.querySelectorAll('[data-url]')];
+  await Promise.all(rows.map(async row => {
+    const url = row.dataset.url;
+    const target = row.querySelector('[data-auto-title]');
+    if (!target) return;
+    target.textContent = await getLinkTitle(url);
+  }));
+}
+
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <header>
+      <h1>${esc(APP_DATA.siteTitle)}</h1>
+      <p>${esc(APP_DATA.subtitle)}</p>
+      <div class="rule"></div>
+    </header>
+    ${renderGeneral()}
+    ${APP_DATA.topics.map((t, i) => renderTopic(t, i)).join('')}
+    <footer>להוספת יישומון חדש מדביקים בקוד רק את כתובת הקישור במקום המתאים.</footer>
+  `;
+  hydrateTitles();
+}
+
+render();
+</script>
+</body>
+</html>
