@@ -180,16 +180,16 @@ const APP_DATA = {
       links: [
         "https://eyez-math.github.io/Mathematical-powers---the-beginning/",
         "https://eyez-math.github.io/Mathematical-Powers---Introduction/",
-        "https://eyez-math.github.io/Mathematical-powers---addition-or-multiplication/"
-       "https://eyez-math.github.io/Mathematical-powers---the-addition-law/"
-        "https://eyez-math.github.io/Mathematical-powers---power-over-power/"
-        "https://eyez-math.github.io/Mathematical-powers---when-to-add-and-when-to-multiply/"
-        "https://eyez-math.github.io/Mathematical-Probabilities---Summary-Questions/"
-        "https://eyez-math.github.io/Mathematical-Powers-Signs-Parity/"
-        "https://eyez-math.github.io/Mathematical-Powers-lomda/"
-        "https://eyez-math.github.io/like-terms-stage-a/"
-        "https://eyez-math.github.io/like-terms-stage-b/"
-        "https://eyez-math.github.io/like-terms-stage-c/"
+        "https://eyez-math.github.io/Mathematical-powers---addition-or-multiplication/",
+       "https://eyez-math.github.io/Mathematical-powers---the-addition-law/",
+        "https://eyez-math.github.io/Mathematical-powers---power-over-power/",
+        "https://eyez-math.github.io/Mathematical-powers---when-to-add-and-when-to-multiply/",
+        "https://eyez-math.github.io/Mathematical-Probabilities---Summary-Questions/",
+        "https://eyez-math.github.io/Mathematical-Powers-Signs-Parity/",
+        "https://eyez-math.github.io/Mathematical-Powers-lomda/",
+        "https://eyez-math.github.io/like-terms-stage-a/",
+        "https://eyez-math.github.io/like-terms-stage-b/",
+        "https://eyez-math.github.io/like-terms-stage-c/",
         "https://eyez-math.github.io/difference-of-squares/"
       ]
     },
@@ -242,8 +242,47 @@ function normalizeTitle(title, url){
   return clean;
 }
 
+function hasHebrew(text){
+  return /[\u0590-\u05FF]/.test(String(text || ''));
+}
+
+function cleanCandidate(text){
+  return String(text || '')
+    .replace(/\s+/g,' ')
+    .replace(/^[\s|\-–—:•]+|[\s|\-–—:•]+$/g,'')
+    .trim();
+}
+
+function findHebrewTitle(doc, url){
+  const candidates = [];
+
+  // קודם כל כותרות בולטות בתוך הדף עצמו
+  [
+    'h1',
+    '[role="heading"][aria-level="1"]',
+    '.app-title', '.page-title', '.main-title', '.title',
+    'header h2', 'main h2'
+  ].forEach(selector => {
+    doc.querySelectorAll(selector).forEach(el => {
+      const text = cleanCandidate(el.textContent);
+      if (text) candidates.push(text);
+    });
+  });
+
+  // אחר כך מטא-דאטה וכותרת הדפדפן
+  const ogTitle = cleanCandidate(doc.querySelector('meta[property="og:title"]')?.content);
+  const twitterTitle = cleanCandidate(doc.querySelector('meta[name="twitter:title"]')?.content);
+  const htmlTitle = cleanCandidate(doc.querySelector('title')?.textContent);
+  if (ogTitle) candidates.push(ogTitle);
+  if (twitterTitle) candidates.push(twitterTitle);
+  if (htmlTitle) candidates.push(htmlTitle);
+
+  const hebrew = candidates.find(text => hasHebrew(text));
+  return hebrew || '';
+}
+
 async function getLinkTitle(url){
-  const cacheKey = 'math-links-title:' + url;
+  const cacheKey = 'math-links-title-he-v2:' + url;
   const cached = localStorage.getItem(cacheKey);
   if (cached) return cached;
 
@@ -252,11 +291,14 @@ async function getLinkTitle(url){
     if (!response.ok) throw new Error('HTTP ' + response.status);
     const html = await response.text();
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    const title = normalizeTitle(doc.querySelector('title')?.textContent, url);
+
+    const hebrewTitle = findHebrewTitle(doc, url);
+    const title = hebrewTitle || 'יישומון מתמטיקה';
+
     localStorage.setItem(cacheKey, title);
     return title;
   }catch(e){
-    return fallbackTitle(url);
+    return 'יישומון מתמטיקה';
   }
 }
 
